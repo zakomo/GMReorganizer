@@ -3,15 +3,13 @@
 import csv
 import os
 import sys
-# import re
-import argparse
 import eyed3
 import shutil
-# import time
 
 import utils
 
-def create_directory_tree(folder_tree, base_folder):
+
+def create_directory_tree(folder_tree: dict, base_folder: str) -> dict:
     """
     Creates the directory structure specified in folder_tree into base_folder
     if dry_run is set to True prints the passages but don't create the
@@ -21,14 +19,13 @@ def create_directory_tree(folder_tree, base_folder):
     folder_tree: dict -> the directory structure to be created in the form
                 {Artist: [Album, Album], Artist: [Album]}
     base_folder: str -> the parent folder to the directory.
-    dry_run: bool -> if True only prints directories
     """
 
     for artist in folder_tree:
         os.chdir(base_folder)
         if not os.path.isdir(artist):
             print(f"creating {artist} folder")
-            os.mkdir(artist, 0o0775)
+            os.mkdir(artist.encode('UTF-8'), 0o0775)
         print(f"changing directory to {artist}")
         os.chdir(artist)
         for album in folder_tree[artist]:
@@ -126,22 +123,7 @@ def reorganize(mp3_files, origin, destination, structure, move=False):
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("folder", help="Origin folder in which the tracks and\
-                            csv (if any) files are")
-    parser.add_argument("destination", help="Destination folder")
-    parser.add_argument("--dry_run", "-d",
-                        help="Perform a dry_run: print the output but does not\
-                                move files aroud",
-                        action="store_true")
-    parser.add_argument("--move", "-m",
-                        help="Move the files instead of copying them",
-                        action="store_true")
-    parser.add_argument("--google-music", "-g",
-                        action="store_true",
-                        help="Uses Google CSV files instead of mp3 tags")
-
-    args = parser.parse_args()
+    args = utils.create_cli_parser()
 
     if not os.path.isdir(args.folder):
         return "The origin folder is not a folder or does not exist"
